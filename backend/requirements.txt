@@ -1,0 +1,10 @@
+fastapi
+uvicorn[standard]
+pillow
+python-dotenv
+tensorflow
+google-generativeai
+python-multipart
+pydantic
+motor
+pymongo
