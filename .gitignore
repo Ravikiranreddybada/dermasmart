@@ -7,6 +7,16 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Environment files & secrets - NEVER commit these!
+.env
+.env.local
+.env.*.local
+
+# Keep examples for setup
+!.env.example
+!backend/.env.example
+!frontend/.env.example
+
 release/
 dist-electron/
 node_modules
