@@ -14,12 +14,8 @@ import Login from "./Components/Login";
 import { Auth0ProviderWithNavigate } from "./auth/auth-provider";
 
 function HomePage() {
-  const [isElectronApp, setIsElectronApp] = React.useState<boolean>(false);
   const navigate = useNavigate();
-
-  React.useEffect(() => {
-    setIsElectronApp("electron" in window);
-  }, []);
+  const isElectronApp = false;
 
   return (
     <div className="ds-page flex flex-col items-center justify-center" style={{ background: 'var(--ds-ink)' }}>
@@ -90,11 +86,7 @@ function HomePage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.9 }}
         >
-          {isElectronApp ? (
-            <DSButton onClick={() => navigate("/camera")}>Begin Analysis</DSButton>
-          ) : (
-            <Login />
-          )}
+          <Login />
         </motion.div>
         <motion.div
           initial={{ opacity: 0 }}
