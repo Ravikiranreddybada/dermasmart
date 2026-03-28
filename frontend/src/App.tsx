@@ -12,7 +12,6 @@ import SkincareAnalysisDashboard from "./Components/SkincareAnalysisDashboard";
 import { motion } from "framer-motion";
 import Login from "./Components/Login";
 import { Auth0ProviderWithNavigate } from "./auth/auth-provider";
-import { isElectron } from "./environment";
 
 function HomePage() {
   const [isElectronApp, setIsElectronApp] = React.useState<boolean>(false);
