@@ -23,7 +23,6 @@ function HomePage() {
 
   return (
     <div className="ds-page flex flex-col items-center justify-center" style={{ background: 'var(--ds-ink)' }}>
-      {/* Ambient orbs */}
       <div style={{
         position: 'fixed', top: '-20%', left: '-10%', width: '60vw', height: '60vw',
         borderRadius: '50%',
@@ -36,9 +35,7 @@ function HomePage() {
         background: 'radial-gradient(circle, rgba(201,168,76,0.06) 0%, transparent 70%)',
         pointerEvents: 'none'
       }} />
-
       <div style={{ position: 'relative', zIndex: 1, textAlign: 'center', padding: '2rem' }}>
-        {/* Logo mark */}
         <motion.div
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -58,87 +55,60 @@ function HomePage() {
             </svg>
           </div>
         </motion.div>
-
-        {/* Brand name */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
         >
           <h1 className="font-display ds-gradient-text" style={{
-            fontSize: 'clamp(4rem, 10vw, 8rem)',
-            fontWeight: 300,
-            letterSpacing: '-0.02em',
-            lineHeight: 1,
-            margin: '0 0 0.5rem',
+            fontSize: 'clamp(4rem, 10vw, 8rem)', fontWeight: 300,
+            letterSpacing: '-0.02em', lineHeight: 1, margin: '0 0 0.5rem',
           }}>
             DermaSmart
           </h1>
           <p style={{
-            fontFamily: "'DM Mono', monospace",
-            fontSize: '0.7rem',
-            letterSpacing: '0.25em',
-            textTransform: 'uppercase',
-            color: 'var(--ds-muted)',
-            marginBottom: '0.75rem',
+            fontFamily: "'DM Mono', monospace", fontSize: '0.7rem',
+            letterSpacing: '0.25em', textTransform: 'uppercase',
+            color: 'var(--ds-muted)', marginBottom: '0.75rem',
           }}>
             AI-Powered Skin Intelligence
           </p>
         </motion.div>
-
-        {/* Tagline */}
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1, delay: 0.5 }}
           style={{
-            fontSize: '1.1rem',
-            color: 'var(--ds-warm)',
-            maxWidth: 420,
-            margin: '0 auto 3rem',
-            fontWeight: 300,
-            lineHeight: 1.7,
+            fontSize: '1.1rem', color: 'var(--ds-warm)', maxWidth: 420,
+            margin: '0 auto 3rem', fontWeight: 300, lineHeight: 1.7,
           }}
         >
           Personalized dermatological analysis powered by computer vision and clinical AI.
         </motion.p>
-
-        {/* CTA */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.9 }}
         >
           {isElectronApp ? (
-            <DSButton onClick={() => navigate("/camera")}>
-              Begin Analysis
-            </DSButton>
+            <DSButton onClick={() => navigate("/camera")}>Begin Analysis</DSButton>
           ) : (
             <Login />
           )}
         </motion.div>
-
-        {/* Footer credit */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1, delay: 1.5 }}
           style={{
             position: 'fixed', bottom: '2rem', left: 0, right: 0,
-            textAlign: 'center',
-            fontFamily: "'DM Mono', monospace",
-            fontSize: '0.65rem',
-            letterSpacing: '0.15em',
-            color: 'var(--ds-muted)',
+            textAlign: 'center', fontFamily: "'DM Mono', monospace",
+            fontSize: '0.65rem', letterSpacing: '0.15em', color: 'var(--ds-muted)',
           }}
         >
           Built by{' '}
-          <a
-            href="https://github.com/Ravikiranreddybada"
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ color: 'var(--ds-gold)', textDecoration: 'none' }}
-          >
+          <a href="https://github.com/Ravikiranreddybada" target="_blank" rel="noopener noreferrer"
+            style={{ color: 'var(--ds-gold)', textDecoration: 'none' }}>
             Ravi Kiran Reddy Bada
           </a>
         </motion.div>
@@ -147,7 +117,6 @@ function HomePage() {
   );
 }
 
-// Shared DS Button component
 export function DSButton({ children, onClick, type }: {
   children: React.ReactNode;
   onClick?: () => void;
@@ -158,19 +127,12 @@ export function DSButton({ children, onClick, type }: {
       type={type}
       onClick={onClick}
       style={{
-        position: 'relative',
-        padding: '0.875rem 2.5rem',
+        position: 'relative', padding: '0.875rem 2.5rem',
         background: 'linear-gradient(135deg, rgba(201,168,76,0.15) 0%, rgba(138,158,140,0.1) 100%)',
-        border: '1px solid rgba(201,168,76,0.35)',
-        borderRadius: '100px',
-        color: 'var(--ds-cream)',
-        fontSize: '0.875rem',
-        fontWeight: 400,
-        letterSpacing: '0.08em',
-        fontFamily: "'DM Sans', sans-serif",
-        cursor: 'pointer',
-        transition: 'all 0.3s ease',
-        backdropFilter: 'blur(10px)',
+        border: '1px solid rgba(201,168,76,0.35)', borderRadius: '100px',
+        color: 'var(--ds-cream)', fontSize: '0.875rem', fontWeight: 400,
+        letterSpacing: '0.08em', fontFamily: "'DM Sans', sans-serif",
+        cursor: 'pointer', transition: 'all 0.3s ease', backdropFilter: 'blur(10px)',
       }}
       onMouseEnter={e => {
         (e.currentTarget as HTMLButtonElement).style.background = 'linear-gradient(135deg, rgba(201,168,76,0.25) 0%, rgba(138,158,140,0.2) 100%)';
@@ -190,51 +152,30 @@ export function DSButton({ children, onClick, type }: {
   );
 }
 
-// Top nav bar for inner pages
 export function DSNav({ title }: { title: string }) {
   const navigate = useNavigate();
   return (
     <nav style={{
       position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
-      padding: '1rem 2rem',
-      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-      background: 'rgba(26,24,20,0.8)',
-      backdropFilter: 'blur(20px)',
+      padding: '1rem 2rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+      background: 'rgba(26,24,20,0.8)', backdropFilter: 'blur(20px)',
       borderBottom: '1px solid var(--ds-glass-border)',
     }}>
-      <button
-        onClick={() => navigate('/')}
-        style={{
-          fontFamily: "'Cormorant Garamond', serif",
-          fontSize: '1.3rem',
-          fontWeight: 300,
-          color: 'var(--ds-cream)',
-          background: 'none', border: 'none', cursor: 'pointer',
-          letterSpacing: '0.02em',
-        }}
-      >
+      <button onClick={() => navigate('/')} style={{
+        fontFamily: "'Cormorant Garamond', serif", fontSize: '1.3rem', fontWeight: 300,
+        color: 'var(--ds-cream)', background: 'none', border: 'none',
+        cursor: 'pointer', letterSpacing: '0.02em',
+      }}>
         Derma<span style={{ color: 'var(--ds-gold)' }}>Smart</span>
       </button>
       <span style={{
-        fontFamily: "'DM Mono', monospace",
-        fontSize: '0.65rem',
-        letterSpacing: '0.2em',
-        color: 'var(--ds-muted)',
-        textTransform: 'uppercase',
+        fontFamily: "'DM Mono', monospace", fontSize: '0.65rem',
+        letterSpacing: '0.2em', color: 'var(--ds-muted)', textTransform: 'uppercase',
       }}>
         {title}
       </span>
-      <a
-        href="https://github.com/Ravikiranreddybada"
-        target="_blank"
-        rel="noopener noreferrer"
-        style={{
-          fontFamily: "'DM Mono', monospace",
-          fontSize: '0.65rem',
-          letterSpacing: '0.1em',
-          color: 'var(--ds-gold)',
-        }}
-      >
+      <a href="https://github.com/Ravikiranreddybada" target="_blank" rel="noopener noreferrer"
+        style={{ fontFamily: "'DM Mono', monospace", fontSize: '0.65rem', letterSpacing: '0.1em', color: 'var(--ds-gold)' }}>
         @Ravikiranreddybada
       </a>
     </nav>
