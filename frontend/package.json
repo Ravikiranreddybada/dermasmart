@@ -4,19 +4,9 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev:web": "vite --host",
-    "dev:electron": "cross-env ELECTRON_MODE=true vite",
     "dev": "vite",
-    "build": "electron-builder",
-    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "build": "tsc && vite build",
     "preview": "vite preview"
-  },
-  "build": {
-    "appId": "com.example.app",
-    "linux": {
-      "target": "AppImage",
-      "icon": "path/to/icon.png"
-    }
   },
   "dependencies": {
     "@auth0/auth0-react": "^2.2.4",
@@ -59,6 +49,5 @@
     "vite": "^5.1.6",
     "vite-plugin-electron": "^0.28.6",
     "vite-plugin-electron-renderer": "^0.14.5"
-  },
-  "main": "dist-electron/main.js"
+  }
 }
