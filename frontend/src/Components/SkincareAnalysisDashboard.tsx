@@ -1,16 +1,36 @@
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/Components/ui/tabs";
 import { ScrollArea } from "@/Components/ui/scroll-area";
-import { AlertCircle, Calendar, DollarSign, Droplet, Leaf } from "lucide-react";
+import { AlertCircle, Calendar, DollarSign, Droplet, Leaf, ThumbsUp, ThumbsDown, CheckCircle2 } from "lucide-react";
 import { useState } from "react";
 import productsData from "@/assets/Products.json";
 import { useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import { DSNav } from "../App";
+import { API_BASE_URL } from "../config";
 
 const SkincareAnalysisDashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
   const location = useLocation();
   const { responseData } = location.state || {};
+  const isEmergency = responseData?.is_emergency || false;
+  
+  const [feedbackStatus, setFeedbackStatus] = useState<"idle" | "submitting" | "success">("idle");
+
+  const handleFeedback = async (isAccurate: boolean) => {
+    if (!responseData?.analysis_id) return;
+    setFeedbackStatus("submitting");
+    try {
+      await fetch(`${API_BASE_URL}/api/analyses/${responseData.analysis_id}/feedback`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ is_accurate: isAccurate, comments: "" })
+      });
+      setFeedbackStatus("success");
+    } catch (err) {
+      console.error(err);
+      setFeedbackStatus("idle");
+    }
+  };
 
   const mockData = {
     condition: "Combination Skin with Mild Oiliness",
@@ -77,6 +97,29 @@ const SkincareAnalysisDashboard = () => {
             Personalized recommendations based on clinical AI analysis
           </p>
         </motion.div>
+
+        {isEmergency && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            style={{
+              background: 'rgba(255, 60, 60, 0.1)',
+              border: '2px solid rgba(255, 60, 60, 0.3)',
+              padding: '2rem',
+              borderRadius: '16px',
+              textAlign: 'center',
+              marginBottom: '2.5rem'
+            }}
+          >
+            <AlertCircle size={40} color="#ff5555" style={{ margin: '0 auto 1rem' }} />
+            <h2 style={{ color: '#ff5555', margin: '0 0 1rem', fontSize: '1.8rem', fontWeight: 500, letterSpacing: '0.02em' }}>MEDICAL ALERT</h2>
+            <p style={{ color: '#ffcccc', fontSize: '1.1rem', margin: 0, lineHeight: 1.6, fontWeight: 300 }}>
+              Based on the visual analysis, there is a high probability of a malignant lesion ({condition}).
+              <br /><br />
+              <strong>Please halt your cosmetic skincare routine and consult a certified dermatologist immediately for a professional medical biopsy and evaluation.</strong>
+            </p>
+          </motion.div>
+        )}
 
         <Tabs defaultValue="overview" onValueChange={setActiveTab} className="w-full">
           {/* Tab nav */}
@@ -147,6 +190,46 @@ const SkincareAnalysisDashboard = () => {
                   Your skin profile indicates a combination pattern with moderate oiliness in the T-zone and normal-to-dry cheek regions. Our AI detected subtle signs of dehydration and recommends a hydration-focused routine with targeted treatments. Scroll through the tabs to explore your personalized diet plan, daily routine, and curated product recommendations.
                 </p>
               </div>
+
+              {/* RLHF Feedback Box */}
+              {!isEmergency && (
+                <div className="ds-card" style={{ padding: '2rem 1.75rem', gridColumn: '1 / -1', background: 'rgba(138,158,140,0.05)', border: '1px solid rgba(138,158,140,0.2)' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
+                    <div style={{ fontFamily: "'DM Mono', monospace", fontSize: '0.65rem', letterSpacing: '0.15em', color: 'var(--ds-sage)', textTransform: 'uppercase', marginBottom: '0.75rem' }}>
+                      Help Improve Our AI
+                    </div>
+                    <p style={{ color: 'var(--ds-cream)', fontSize: '0.95rem', fontWeight: 300, marginBottom: '1.5rem', maxWidth: 400 }}>
+                      Was this diagnosis accurate? Your ground-truth feedback helps train our precision models.
+                    </p>
+                    
+                    {feedbackStatus === "success" ? (
+                      <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--ds-sage)' }}>
+                        <CheckCircle2 size={18} />
+                        <span style={{ fontSize: '0.9rem' }}>Feedback securely logged. Thank you!</span>
+                      </motion.div>
+                    ) : (
+                      <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+                        <button onClick={() => handleFeedback(true)} disabled={feedbackStatus === "submitting"} style={{
+                          display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.75rem 1.75rem',
+                          background: 'linear-gradient(135deg, rgba(138,158,140,0.1), rgba(138,158,140,0.05))', 
+                          border: '1px solid rgba(138,158,140,0.3)', borderRadius: '100px',
+                          color: 'var(--ds-cream)', cursor: 'pointer', transition: 'all 0.2s', opacity: feedbackStatus === "submitting" ? 0.5 : 1
+                        }}>
+                          <ThumbsUp size={16} /> Yes, Right
+                        </button>
+                        <button onClick={() => handleFeedback(false)} disabled={feedbackStatus === "submitting"} style={{
+                          display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.75rem 1.75rem',
+                          background: 'linear-gradient(135deg, rgba(255,255,255,0.03), transparent)', 
+                          border: '1px solid rgba(255,255,255,0.1)', borderRadius: '100px',
+                          color: 'var(--ds-cream)', cursor: 'pointer', transition: 'all 0.2s', opacity: feedbackStatus === "submitting" ? 0.5 : 1
+                        }}>
+                          <ThumbsDown size={16} /> No, Incorrect
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
             </motion.div>
           </TabsContent>
 
@@ -309,18 +392,21 @@ const SkincareAnalysisDashboard = () => {
           </TabsContent>
         </Tabs>
 
-        {/* Footer */}
+        {/* Footer & Medical Disclaimer */}
         <div style={{
           textAlign: 'center', marginTop: '3rem', paddingTop: '2rem',
           borderTop: '1px solid rgba(245,240,235,0.06)',
-          fontFamily: "'DM Mono', monospace", fontSize: '0.6rem', letterSpacing: '0.15em',
-          color: 'var(--ds-muted)',
+          fontFamily: "'DM Sans', sans-serif", fontSize: '0.8rem',
+          color: 'var(--ds-muted)', lineHeight: 1.6
         }}>
-          DermaSmart · Built by{' '}
-          <a href="https://github.com/Ravikiranreddybada" target="_blank" rel="noopener noreferrer"
-            style={{ color: 'var(--ds-gold)' }}>
-            Ravi Kiran Reddy Bada
-          </a>
+          <strong>Medical Disclaimer:</strong> DermaSmart is an AI-powered cosmetic tool and does not provide medical advice. 
+          Use of this platform is not a substitute for professional medical diagnosis or treatment. Always seek the advice of your physician or qualified dermatologist.<br /><br />
+          <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '0.6rem', letterSpacing: '0.15em' }}>
+            DermaSmart · Built by{' '}
+            <a href="https://github.com/Ravikiranreddybada" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--ds-gold)' }}>
+              Ravi Kiran Reddy Bada
+            </a>
+          </span>
         </div>
       </div>
     </div>

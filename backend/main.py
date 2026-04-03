@@ -48,27 +48,38 @@ async def analyze_skin(
     age: int = Form(...),
 ):
     try:
-        # 1. Read and save the uploaded image
+        # 1. Read the uploaded image into memory
         image_content = await image.read()
-        UPLOAD_DIR = "uploads"
-        os.makedirs(UPLOAD_DIR, exist_ok=True)
-        filepath = os.path.join(UPLOAD_DIR, image.filename)
-        with open(filepath, "wb") as f:
-            f.write(image_content)
 
-        # 2. Run TensorFlow skin condition classifier
-        tf_result = skin_analysis(image.filename)
+        # 2. Run TensorFlow skin condition classifier directly on bytes
+        tf_result = skin_analysis(image_content)
         if "error" in tf_result:
             skin_condition = "Unknown"
         else:
             skin_condition = tf_result["condition"]
 
-        # 3. Get personalised skincare advice from Gemini
-        derma_report = get_personalized_skin_advice(
-            skin_condition=skin_condition,
-            skin_type=skin_type,
-            age=age,
-        )
+        # 3. Handle Medical Emergency Overrides
+        EMERGENCY_CLASSES = [
+            "Melanoma Skin Cancer Nevi and Moles",
+            "Actinic Keratosis Basal Cell Carcinoma and other Malignant Lesions"
+        ]
+        
+        is_emergency = skin_condition in EMERGENCY_CLASSES
+        
+        if is_emergency:
+            derma_report = {
+                "overview": {"condition": f"EMERGENCY ALERT: High probability of malignant lesion detected ({skin_condition})."},
+                "routine": {"morning": ["URGENT: Consult a Dermatologist immediately."], "evening": ["URGENT: Consult a Dermatologist immediately."]},
+                "diet": {"recommendations": ["Seek professional medical evaluation immediately. Do not rely on cosmetic skincare advice."]},
+                "products": []
+            }
+        else:
+            # 4. Get personalised skincare advice from Gemini
+            derma_report = get_personalized_skin_advice(
+                skin_condition=skin_condition,
+                skin_type=skin_type,
+                age=age,
+            )
 
         # 4. Save to MongoDB
         db = get_db()
@@ -85,12 +96,12 @@ async def analyze_skin(
             "user_email": email,
             "skin_condition": skin_condition,
             "derma_report": derma_report,
-            "image_filename": image.filename,
+            "image_filename": "in-memory-processed",
             "created_at": datetime.utcnow(),
         }
         result = await db.skin_analyses.insert_one(analysis_doc)
 
-        # 5. Return response to frontend
+        # 6. Return response to frontend
         return {
             "status": "success",
             "analysis_id": str(result.inserted_id),
@@ -101,6 +112,7 @@ async def analyze_skin(
                 "age": age,
             },
             "skin_condition": skin_condition,
+            "is_emergency": is_emergency,
             "dermaReport": {
                 "report": derma_report
             },

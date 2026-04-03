@@ -8,9 +8,9 @@ if [ ! -d "node_modules" ]; then
 fi
 
 if [ ! -f ".env" ]; then
-  echo "⚠️  No .env file found — copying from .env.example (Auth0 disabled)"
-  cp .env.example .env
+  echo "⚠️  No .env file found creating empty one"
+  touch .env
 fi
 
 echo "✅ Starting Vite dev server on http://localhost:5173"
-npm run dev:web
+npm run dev

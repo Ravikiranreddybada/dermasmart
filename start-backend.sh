@@ -19,5 +19,5 @@ if [ ! -f ".env" ]; then
   exit 1
 fi
 
-echo "✅ Starting FastAPI on http://localhost:8000"
-uvicorn main:app --reload --host 0.0.0.0 --port 8000
+echo "✅ Starting FastAPI on http://localhost:8000 via Miniforge"
+/opt/homebrew/Caskroom/miniforge/base/bin/uvicorn main:app --reload --host 0.0.0.0 --port 8000

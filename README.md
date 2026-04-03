@@ -1,142 +1,94 @@
-# DermaSmart
+<div align="center">
+  <img src="assets/banner.png" alt="DermaSmart Banner" width="100%">
+  
+  # 🌿 DermaSmart AI
+  ### *Precision Dermatological Intelligence & Personalized Skincare Architecture*
+  
+  [![Build Status](https://img.shields.io/badge/Status-Investor--Ready-gold?style=for-the-badge)](https://github.com/Ravikiranreddybada)
+  [![Tech Stack](https://img.shields.io/badge/Stack-React%20%7C%20FastAPI%20%7C%20TensorFlow-sage?style=for-the-badge)](https://github.com/Ravikiranreddybada)
+  [![Security](https://img.shields.io/badge/Privacy-In--Memory%20Processing-blue?style=for-the-badge)](https://github.com/Ravikiranreddybada)
 
-> AI-powered skin analysis and personalised skincare recommendation platform.
-
-DermaSmart captures a photo of your skin, classifies the condition using a custom TensorFlow model trained on 23 dermatological categories, and returns a full report — morning/evening routine, diet recommendations, and curated product suggestions — powered by Google Gemini.
-
----
-
-## Tech Stack
-
-### Frontend
-| Technology | Purpose |
-|---|---|
-| React 18 + TypeScript | UI framework |
-| Vite | Build tool / dev server |
-| Electron | Optional desktop app wrapper |
-| Tailwind CSS + Framer Motion | Styling and animations |
-| Radix UI / shadcn/ui | Accessible UI components |
-| Auth0 | Authentication (optional) |
-| React Router v6 | Client-side routing |
-| react-webcam | Camera capture |
-
-### Backend
-| Technology | Purpose |
-|---|---|
-| FastAPI + Python 3.9+ | REST API |
-| TensorFlow / Keras | Skin condition classifier (23 classes) |
-| Google Gemini 1.5 Flash | Personalised skincare advice (LLM) |
-| MongoDB Atlas + Motor | Async cloud database |
-| Pillow | Image processing |
-| Uvicorn | ASGI server |
-
+  [**View Demo Video**](https://www.loom.com/share/17b6ad752e344c5287185e778cc86020) • [**Explore Docs**](http://localhost:8000/docs)
+</div>
 
 ---
 
-## Quick Start
+## 💎 The Vision
+**DermaSmart** is a professional-grade, "investor-ready" skin analysis platform that bridges the gap between raw computer vision and personalized dermatological care. By combining a custom-trained **MobileNetV2** classification engine with the reasoning power of **Google Gemini 2.0**, DermaSmart provides clinical-grade reporting with a premium, high-end user experience.
 
-### 1. Backend
+---
+
+## 🚀 Advanced Engine Features (The Technical Flex)
+
+### 1. 🛡️ Ethical AI & Medical Safeguards
+Unlike generic AI tools, DermaSmart treats medical safety as a first-class citizen.
+- **Emergency Override**: If the TensorFlow model detects a high probability of malignant lesions (e.g., Melanoma, Basal Cell Carcinoma), the system **hard-intercepts** the request.
+- **Gemini Detachment**: To prevent "hallucinated" cosmetic advice for cancer, the LLM is completely bypassed for critical conditions, triggering a high-visibility **Medical Alert UI** instead.
+
+### 2. 🔐 Privacy-First "In-Memory" Pipeline
+Built for PII (Personally Identifiable Information) compliance.
+- **Volatile Processing**: User photos are never written to physical disk storage.
+- **Byte-Stream Architecture**: Images are processed as raw byte-arrays in the server's RAM and purged instantly upon response delivery, ensuring no facial data persists on the server.
+
+### 3. 🔍 Neural Image Gating (Data Quality)
+To solve the "Garbage In, Garbage Out" problem, every upload passes a 3-stage audit:
+- **Face Detection**: Uses OpenCV Haarcascades to mathematically verify human presence.
+- **HSV Segmentation**: A color-space fallback to ensure the subject is human skin, not an inanimate object.
+- **Confidence Thresholding**: A strict `< 50%` reject-gate ensures the AI only speaks when it is certain.
+
+### 4. 🔄 RLHF Feedback Loop
+- **Human-in-the-Loop**: Users can provide "Ground-Truth" feedback on the AI's accuracy via an interactive dashboard widget.
+- **Data Moat**: All feedback is logged to MongoDB, creating a high-value dataset for future model fine-tuning and fine-grained accuracy improvements.
+
+---
+
+## 🛠️ Technology Stack
+
+| Layer | Technologies |
+| :--- | :--- |
+| **Frontend** | React 18, TypeScript, Vite, Framer Motion, Radix UI, TailwindCSS |
+| **Intelligence** | TensorFlow (Custom MobileNetV2), Google Gemini 2.0 Flash, OpenCV |
+| **Backend** | FastAPI, Python 3.12+, Uvicorn, Motor (Async MongoDB) |
+| **Database** | MongoDB Atlas (Cloud Persistence) |
+
+---
+
+## 📦 Quick Start
+
+### 1. Prerequisites
+- **Python**: 3.9+ (Miniforge recommended for Mac M-series)
+- **Node.js**: 18+
+- **MongoDB**: Atlas Cluster (v4.0+)
+
+### 2. Launch the Ecosystem
+We provide pre-configured scripts for the fastest deployment possible:
 
 ```bash
-# Option A — use the start script
+# Terminal A — Launch the AI Microservice
 ./start-backend.sh
 
-# Option B — manual
-cd backend
-python3 -m venv venv
-source venv/bin/activate          # Windows: venv\Scripts\activate
-pip install -r requirements.txt
-
-cp .env.example .env
-# Edit .env — fill in MONGO_URI and GEMINI_API_KEY
-
-uvicorn main:app --reload --port 8000
-```
-
-Check it's running: open **http://localhost:8000** — should show `{"message": "DermaSmart API is running 🚀"}`
-
-### 2. Frontend
-
-```bash
-# Option A — use the start script
+# Terminal B — Launch the Premium Dashboard
 ./start-frontend.sh
-
-# Option B — manual
-cd frontend
-npm install
-cp .env.example .env
-# Edit .env — add Auth0 credentials (or leave blank to skip login)
-
-npm run dev:web
-```
-
-Open **http://localhost:5173**
-
----
-
-## Environment Variables
-
-### `backend/.env`
-```env
-MONGO_URI=mongodb+srv://ravi:<password>@cluster0.fcukcnh.mongodb.net/?appName=Cluster0
-MONGO_DB_NAME=dermasmart
-GEMINI_API_KEY=your_gemini_api_key
-```
-
-### `frontend/.env`
-```env
-VITE_AUTH0_DOMAIN=your-tenant.us.auth0.com
-VITE_AUTH0_CLIENT_ID=your_client_id
-```
-> Leave Auth0 vars blank to skip login and go straight to the camera.
-
----
-
-## AI Model
-
-Place your trained Keras model at:
-```
-backend/model/tf_model.keras
-```
-
-The model classifies skin images into 23 categories including Acne, Eczema, Melanoma, Psoriasis, and more. Training notebook is in `model/DermaSmart_Model.ipynb`.
-
-> Without the model file, the backend still runs — skin_condition will return `"Unknown"` and Gemini will still generate a general skincare report.
-
----
-
-## API
-
-| Method | Endpoint | Description |
-|---|---|---|
-| `GET` | `/` | Health check |
-| `POST` | `/userInfo` | Main endpoint — upload image, get full report |
-| `POST` | `/api/users/` | Create user |
-| `GET` | `/api/users/email/{email}` | Get user by email |
-| `GET` | `/api/analyses/user/{email}` | Get analysis history |
-
-Interactive docs: **http://localhost:8000/docs**
-
----
-
-## How It Works
-
-```
-User captures photo
-        ↓
-FormPage collects skin type answers
-        ↓
-POST /userInfo (image + skin_type + age)
-        ↓
-TensorFlow model → skin condition label
-        ↓
-Gemini 1.5 Flash → full skincare report (JSON)
-        ↓
-Saved to MongoDB
-        ↓
-SkincareAnalysisDashboard renders report
 ```
 
 ---
 
-> Built by [Ravi Kiran Reddy Bada](https://github.com/Ravikiranreddybada)
+## 📂 Project Structure
+```text
+├── backend/            # FastAPI microservice & ML integration
+├── frontend/           # React dashboard & UI components
+├── model/              # Custom TensorFlow training notebooks
+└── assets/             # Branding & Project Visuals
+```
+
+---
+
+## ⚖️ Medical Disclaimer
+**DermaSmart is an AI-powered cosmetic evaluation tool and does not provide medical advice.** The results generated by our models are for informational purposes only and are not a substitute for professional medical diagnosis or treatment. Always consult a certified dermatologist for any skin concerns.
+
+---
+
+<div align="center">
+  <p><b>Designed & Engineered with ❤️ by <a href="https://github.com/Ravikiranreddybada">Ravi Kiran Reddy Bada</a></b></p>
+  <p><i>Building the future of personalized dermatological intelligence.</i></p>
+</div>

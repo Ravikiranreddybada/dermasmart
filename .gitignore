@@ -17,7 +17,11 @@ lerna-debug.log*
 !backend/.env.example
 !frontend/.env.example
 
-release/
+# Local Data & Cache
+backend/uploads/
+**/__pycache__/
+*.pyc
+.ipynb_checkpoints/
 dist-electron/
 node_modules
 dist

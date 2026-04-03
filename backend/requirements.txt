@@ -8,3 +8,4 @@ python-multipart
 pydantic
 motor
 pymongo
+opencv-python-headless
