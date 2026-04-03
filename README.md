@@ -1,7 +1,5 @@
-<div align="center">
-  <img src="assets/banner.png" alt="DermaSmart Banner" width="100%">
-  
-  # 🌿 DermaSmart AI
+
+  # 🌿 DermaSmart--- AI Skin Condition Diagnosis System
   ### *Precision Dermatological Intelligence & Personalized Skincare Architecture*
   
   [![Build Status](https://img.shields.io/badge/Status-Investor--Ready-gold?style=for-the-badge)](https://github.com/Ravikiranreddybada)
