@@ -1,4 +1,4 @@
-import tensorflow as tf
+import tflite_runtime.interpreter as tflite
 from PIL import Image
 import os
 import cv2
@@ -34,24 +34,34 @@ LABELS = [
     'Warts Molluscum and other Viral Infections'
 ]
 
-MODEL_PATH = os.path.join(os.path.dirname(__file__), "model", "tf_model.keras")
+# Path to TFLite model
+MODEL_PATH = os.path.join(os.path.dirname(__file__), "model", "tf_model.tflite")
 
-# Load model once at startup
+# Load TFLite model and allocate tensors
+interpreter = None
+input_details = None
+output_details = None
+
 try:
-    tf_model = tf.keras.models.load_model(MODEL_PATH)
-    print("✅ TensorFlow model loaded successfully.")
+    if os.path.exists(MODEL_PATH):
+        interpreter = tflite.Interpreter(model_path=MODEL_PATH)
+        interpreter.allocate_tensors()
+        input_details = interpreter.get_input_details()
+        output_details = interpreter.get_output_details()
+        print("✅ TFLite model loaded successfully.")
+    else:
+        print(f"⚠️  TFLite model not found at {MODEL_PATH}")
 except Exception as e:
-    tf_model = None
-    print(f"⚠️  Could not load TF model: {e}")
+    print(f"⚠️  Could not load TFLite model: {e}")
 
 
 def skin_analysis(image_bytes: bytes) -> dict:
     """
-    Run skin condition classification on uploaded image bytes.
+    Run skin condition classification on uploaded image bytes using TFLite.
     Returns {"condition": "<label>"} or {"error": "<message>"}
     """
-    if tf_model is None:
-        return {"error": "Model not loaded. Place tf_model.keras in backend/model/"}
+    if interpreter is None:
+        return {"error": "Model not loaded. Convert your model and place tf_model.tflite in backend/model/"}
 
     try:
         # Load image from bytes
@@ -71,7 +81,6 @@ def skin_analysis(image_bytes: bytes) -> dict:
         if len(faces) == 0:
             # Fallback to Skin Color Segmentation (HSV space)
             hsv = cv2.cvtColor(img_numpy, cv2.COLOR_RGB2HSV)
-            # Define range for human skin tone
             lower_skin = np.array([0, 20, 70], dtype=np.uint8)
             upper_skin = np.array([20, 255, 255], dtype=np.uint8)
             mask = cv2.inRange(hsv, lower_skin, upper_skin)
@@ -80,9 +89,19 @@ def skin_analysis(image_bytes: bytes) -> dict:
             if skin_percentage < 30.0:
                 return {"error": "No face detected, and the image does not contain enough recognizable human skin. Please ensure your skin is clearly visible in the camera frame."}
 
-        # 3. TensorFlow Classification & Confidence Thresholding
-        img_array = tf.expand_dims(tf.keras.utils.img_to_array(img) / 255.0, axis=0)
-        prediction = tf_model.predict(img_array)
+        # 3. TFLite Classification & Confidence Thresholding
+        # Normalization: MobileNetV2 expects [-1, 1]
+        input_data = (img_numpy.astype(np.float32) / 127.5) - 1.0
+        input_data = np.expand_dims(input_data, axis=0)
+        
+        # Set the tensor to point to the input data to be inferred
+        interpreter.set_tensor(input_details[0]['index'], input_data)
+        
+        # Run inference
+        interpreter.invoke()
+        
+        # Get the result
+        prediction = interpreter.get_tensor(output_details[0]['index'])
         
         confidence = np.max(prediction[0])
         if confidence < 0.50:
