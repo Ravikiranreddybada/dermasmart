@@ -5,8 +5,8 @@ import { useNavigate } from "react-router-dom";
 import { DSNav } from "../App";
 
 const videoConstraints = {
-  width: 720,
-  height: 720,
+  width: { ideal: 720 },
+  height: { ideal: 720 },
   facingMode: "user",
 };
 
@@ -22,6 +22,8 @@ const dataURLtoFile = (dataurl: string, filename: string): File => {
 
 export const CameraPage: React.FC = () => {
   const [image, setImage] = useState<string>("");
+  const [isCameraReady, setIsCameraReady] = useState(false);
+  const [cameraError, setCameraError] = useState<string | null>(null);
   const navigate = useNavigate();
   const webcamRef = useRef<Webcam>(null);
 
@@ -90,15 +92,30 @@ export const CameraPage: React.FC = () => {
           {image === "" && <div className="scan-line" style={{ zIndex: 5 }} />}
 
           {image === "" ? (
-            <Webcam
-              audio={false}
-              ref={webcamRef}
-              screenshotFormat="image/jpeg"
-              width={560}
-              height={420}
-              videoConstraints={videoConstraints}
-              style={{ display: 'block' }}
-            />
+            <div style={{ position: 'relative' }}>
+              <Webcam
+                audio={false}
+                ref={webcamRef}
+                screenshotFormat="image/jpeg"
+                width={560}
+                height={420}
+                videoConstraints={videoConstraints}
+                onUserMedia={() => setIsCameraReady(true)}
+                onUserMediaError={(err) => setCameraError(err.toString())}
+                mirrored={true}
+                forceScreenshotSourceSize={true}
+                style={{ display: 'block', imageRendering: 'crisp-edges' }}
+              />
+              {cameraError && (
+                <div style={{
+                  position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  background: 'rgba(0,0,0,0.8)', color: 'var(--ds-gold)', padding: '1rem', textAlign: 'center',
+                  fontSize: '0.8rem', zIndex: 20
+                }}>
+                  Camera Error: {cameraError}. Please check permissions.
+                </div>
+              )}
+            </div>
           ) : (
             <img src={image} alt="Captured" style={{ width: 560, height: 420, objectFit: 'cover', display: 'block' }} />
           )}
@@ -108,7 +125,9 @@ export const CameraPage: React.FC = () => {
             fontFamily: "'DM Mono', monospace", fontSize: '0.6rem', letterSpacing: '0.15em',
             color: 'rgba(245,240,235,0.5)', textTransform: 'uppercase',
           }}>
-            {image === "" ? "Live · Ready to Capture" : "Image Captured"}
+            {image === "" 
+              ? (isCameraReady ? "Live · Ready to Capture" : "Initializing Hardware...") 
+              : "Image Captured"}
           </div>
         </motion.div>
 

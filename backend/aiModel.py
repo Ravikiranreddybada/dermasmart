@@ -86,8 +86,8 @@ def skin_analysis(image_bytes: bytes) -> dict:
             mask = cv2.inRange(hsv, lower_skin, upper_skin)
             skin_percentage = (np.count_nonzero(mask) / mask.size) * 100
             
-            if skin_percentage < 30.0:
-                return {"error": "No face detected, and the image does not contain enough recognizable human skin. Please ensure your skin is clearly visible in the camera frame."}
+            if skin_percentage < 35.0:
+                return {"error": "No face detected, and skin visibility is below 35%. Please ensure your skin is clearly visible in the camera frame for a high-precision analysis."}
 
         # 3. TFLite Classification & Confidence Thresholding
         # Normalization: MobileNetV2 expects [-1, 1]
