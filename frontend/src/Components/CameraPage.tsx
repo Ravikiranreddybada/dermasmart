@@ -1,8 +1,9 @@
 import React, { useState, useRef, useCallback } from "react";
 import Webcam from "react-webcam";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { DSNav } from "../App";
+import { API_BASE_URL } from "../config";
 
 const videoConstraints = {
   width: { ideal: 720 },
@@ -24,13 +25,45 @@ export const CameraPage: React.FC = () => {
   const [image, setImage] = useState<string>("");
   const [isCameraReady, setIsCameraReady] = useState(false);
   const [cameraError, setCameraError] = useState<string | null>(null);
+  const [validating, setValidating] = useState(false);
+  const [validationError, setValidationError] = useState<string | null>(null);
   const navigate = useNavigate();
   const webcamRef = useRef<Webcam>(null);
 
   const handleCapture = useCallback(() => {
+    setValidationError(null);
     const imageSrc = webcamRef.current?.getScreenshot();
     if (imageSrc) setImage(imageSrc);
   }, [webcamRef]);
+
+  const handleRetake = () => {
+    setImage("");
+    setValidationError(null);
+  };
+
+  const validateAndProceed = async () => {
+    setValidating(true);
+    setValidationError(null);
+    try {
+      const file = dataURLtoFile(image, "photo.jpg");
+      const formData = new FormData();
+      formData.append("image", file);
+      const res = await fetch(`${API_BASE_URL}/validate-face`, {
+        method: "POST",
+        body: formData,
+      });
+      const data = await res.json();
+      if (data.valid) {
+        navigate("/form", { state: file });
+      } else {
+        setValidationError(data.reason || "No face detected. Please retake.");
+      }
+    } catch {
+      setValidationError("Could not connect to validation server. Please check your connection.");
+    } finally {
+      setValidating(false);
+    }
+  };
 
   return (
     <div className="ds-page" style={{ background: 'var(--ds-ink)', paddingTop: 80 }}>
@@ -141,7 +174,7 @@ export const CameraPage: React.FC = () => {
           {image !== "" ? (
             <>
               <button
-                onClick={() => setImage("")}
+                onClick={handleRetake}
                 style={{
                   padding: '0.875rem 2rem',
                   border: '1px solid rgba(245,240,235,0.1)',
@@ -153,17 +186,21 @@ export const CameraPage: React.FC = () => {
                 Retake
               </button>
               <button
-                onClick={() => navigate("/form", { state: dataURLtoFile(image, `photo.jpg`) })}
+                onClick={validateAndProceed}
+                disabled={validating}
                 style={{
                   padding: '0.875rem 2rem',
-                  background: 'linear-gradient(135deg, rgba(201,168,76,0.2), rgba(138,158,140,0.15))',
+                  background: validating
+                    ? 'rgba(201,168,76,0.08)'
+                    : 'linear-gradient(135deg, rgba(201,168,76,0.2), rgba(138,158,140,0.15))',
                   border: '1px solid rgba(201,168,76,0.4)',
                   borderRadius: '100px', color: 'var(--ds-cream)',
                   fontSize: '0.875rem', letterSpacing: '0.06em',
-                  cursor: 'pointer', transition: 'all 0.2s',
+                  cursor: validating ? 'not-allowed' : 'pointer', transition: 'all 0.2s',
+                  opacity: validating ? 0.7 : 1,
                 }}
               >
-                Continue →
+                {validating ? 'Validating...' : 'Continue →'}
               </button>
             </>
           ) : (
@@ -183,11 +220,45 @@ export const CameraPage: React.FC = () => {
           )}
         </motion.div>
 
+        <AnimatePresence>
+          {validationError && (
+            <motion.div
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              style={{
+                background: 'rgba(220,50,50,0.1)',
+                border: '1px solid rgba(220,50,50,0.35)',
+                borderRadius: 12, padding: '1rem 1.5rem',
+                color: '#ff6b6b', fontSize: '0.85rem',
+                textAlign: 'center', maxWidth: 520,
+                lineHeight: 1.6,
+              }}
+            >
+              ⚠️ {validationError}
+              <div style={{ marginTop: '0.75rem' }}>
+                <button
+                  onClick={handleRetake}
+                  style={{
+                    padding: '0.5rem 1.5rem',
+                    border: '1px solid rgba(220,50,50,0.4)',
+                    borderRadius: '100px', background: 'transparent',
+                    color: '#ff6b6b', fontSize: '0.8rem',
+                    cursor: 'pointer',
+                  }}
+                >
+                  📷 Retake Photo
+                </button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         <p style={{
           fontFamily: "'DM Mono', monospace", fontSize: '0.6rem', letterSpacing: '0.15em',
           color: 'var(--ds-muted)', textTransform: 'uppercase', textAlign: 'center',
         }}>
-          {image === "" ? "Press to capture" : "Review your image above"}
+          {image === "" ? "Press to capture" : validating ? "Scanning for face..." : "Review your image above"}
         </p>
       </div>
     </div>

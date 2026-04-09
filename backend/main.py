@@ -7,7 +7,7 @@ from datetime import datetime
 from dotenv import load_dotenv
 
 from database import connect_db, close_db, get_db
-from aiModel import skin_analysis
+from aiModel import skin_analysis, validate_face
 from gemini import get_personalized_skin_advice
 from routes import user, skin_analysis as skin_analysis_routes
 
@@ -36,6 +36,16 @@ async def shutdown():
 # ── Routers ────────────────────────────────────────────
 app.include_router(user.router, prefix="/api")
 app.include_router(skin_analysis_routes.router, prefix="/api")
+
+
+
+# ── Face Validation Endpoint ───────────────────────────
+@app.post("/validate-face")
+async def validate_face_endpoint(image: UploadFile = File(...)):
+    """Quick face/skin check on camera page — no TFLite inference."""
+    image_content = await image.read()
+    result = validate_face(image_content)
+    return result
 
 
 # ── Main Endpoint ──────────────────────────────────────

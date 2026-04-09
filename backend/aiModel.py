@@ -55,7 +55,50 @@ except Exception as e:
     print(f"⚠️  Could not load TFLite model: {e}")
 
 
+def validate_face(image_bytes: bytes) -> dict:
+    """
+    Lightweight face/skin validation for camera page pre-screening.
+    Does NOT run TFLite inference — just checks for blank image and face/skin presence.
+    Returns {"valid": True} or {"valid": False, "reason": "<message>"}
+    """
+    try:
+        pil_image = Image.open(io.BytesIO(image_bytes)).convert('RGB')
+        img = pil_image.resize((224, 224))
+        img_numpy = np.array(img)
+
+        # 1. Blank / Dark / Uniform image check
+        if np.var(img_numpy) < 150:
+            return {"valid": False, "reason": "The image appears to be blank or too dark. Please ensure you are in a well-lit area and your face is visible."}
+
+        # 2. Try Haarcascade face detection
+        frame = cv2.cvtColor(img_numpy, cv2.COLOR_RGB2BGR)
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        faces = face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=3, minSize=(30, 30))
+
+        if len(faces) > 0:
+            return {"valid": True}
+
+        # 3. Fallback: HSV skin color segmentation
+        hsv = cv2.cvtColor(img_numpy, cv2.COLOR_RGB2HSV)
+        lower_skin = np.array([0, 20, 70], dtype=np.uint8)
+        upper_skin = np.array([20, 255, 255], dtype=np.uint8)
+        mask = cv2.inRange(hsv, lower_skin, upper_skin)
+        skin_percentage = (np.count_nonzero(mask) / mask.size) * 100
+
+        if skin_percentage >= 35.0:
+            return {"valid": True}
+
+        return {
+            "valid": False,
+            "reason": f"No face detected ({skin_percentage:.0f}% skin visible, minimum 35% required). Please position your face clearly in the frame."
+        }
+
+    except Exception as e:
+        return {"valid": False, "reason": f"Image validation failed: {str(e)}"}
+
+
 def skin_analysis(image_bytes: bytes) -> dict:
+
     """
     Run skin condition classification on uploaded image bytes using TFLite.
     Returns {"condition": "<label>"} or {"error": "<message>"}
