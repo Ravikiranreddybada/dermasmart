@@ -3,6 +3,7 @@ uvicorn[standard]
 pillow
 python-dotenv
 tflite-runtime
+numpy<2.0.0
 google-generativeai
 python-multipart
 pydantic
