@@ -42,3 +42,9 @@ dist-ssr
 # High accuracy training scripts
 dermasmart-v3-highaccuracy.py
 model/DermaSmart_V2_Improved.ipynb
+
+# Interview and study guides
+zero_to_hero.md
+zero_to_hero.md.resolved
+presentation_script.md
+presentation_script.md.resolved
