@@ -38,3 +38,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# High accuracy training scripts
+dermasmart-v3-highaccuracy.py
+model/DermaSmart_V2_Improved.ipynb
